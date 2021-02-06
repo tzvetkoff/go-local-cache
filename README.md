@@ -1,18 +1,19 @@
 # Local go cache
 
-Basic setup with cache and speedup:
+## Building & running
 
 ``` bash
-export GOPROXY='http://172.17.0.1:3000|https://proxy.golang.org'
+make build up
 ```
 
-The same with `direct` fallback:
+## Basic setup
 
 ``` bash
-export GOPROXY='http://172.17.0.1:3000|https://proxy.golang.org,direct'
+DOCKER0_IP="$(ip -f inet addr show docker0 | awk '/inet / { sub(/\/.*/, "", $2); print $2 }')"
+export GOPROXY="http://${DOCKER0_IP}:8008|https://proxy.golang.org,direct"
 ```
 
-Documentation:
+## Documentation
 
 ``` bash
 go help goproxy

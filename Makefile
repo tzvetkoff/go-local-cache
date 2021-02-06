@@ -1,4 +1,6 @@
-COMPOSE_PROJECT_NAME ?= go-cache
+TOP_DIR ?= $(shell echo "${PWD}")
+UID ?= $(shell id -u)
+GID ?= $(shell id -g)
 
 .PHONY: help
 
@@ -21,16 +23,20 @@ help:
 		}																				\
 	'
 
+## Build local server
+build:
+	docker build --tag='go-cache:latest' '$(TOP_DIR)'
+
 ## Start local server
 up:
-	docker-compose --project-name=$(COMPOSE_PROJECT_NAME) up
+	docker run --network='host' --user='$(UID):$(GID)' --env-file='$(TOP_DIR)/.env' --mount='type=bind,source=$(TOP_DIR)/data,destination=/data' 'go-cache:latest'
 
 ## Stop local server
 down:
-	docker-compose --project-name=$(COMPOSE_PROJECT_NAME) down
+	docker kill '$(shell docker ps --quiet --filter 'ancestor=go-cache:latest')'
 
 ## Remove local server leftovers
 clean:
-	rm -rf ./data
+	rm -rf '$(TOP_DIR)/data' && mkdir -p '$(TOP_DIR)/data' && touch '$(TOP_DIR)/.keep'
 
 # vim:ft=make:ts=4:sts=4:noet
